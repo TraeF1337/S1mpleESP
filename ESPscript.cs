@@ -46,19 +46,11 @@ namespace S1mpleESP
             Logging.Log("Load ESP Script", LogLevel.Info);
 
             AddState("config", new ConfigState(config, context));
-            AddState("work", new ConfigState(config, context));
+            AddState("resolve", new ResolveState(config, context));
+            AddState("work", new WorkState(config, context));
             EnterState("config");
-
             return base.OnStart(se);
         }
 
-        public override void OnPaint(IScriptEngine se, GraphicContext g)
-        {
-            g.SetColor(new Color(0.3f, 0.3f, 0.3f, 1.0f));
-            g.FillRect(15, 100, 265, 195);
-            g.SetColor(new Color(1.0f, 1.0f, 1.0f, 1.0f));
-            g.DrawString("S1mpleESP", 20, 100);
-            g.DrawString(string.Format("State: {0}", context.State), 20, 130);
-        }
     }
 }

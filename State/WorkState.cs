@@ -7,7 +7,6 @@ using System.Collections.Generic;
 
 namespace S1mpleESP
 {
-    [LocalScript]
     public class WorkState : StateScript
     {
         private Configuration config;
@@ -16,12 +15,14 @@ namespace S1mpleESP
         private HashSet<long> _harvestable;
         private HashSet<long> _mobs;
 
-        public WorkState(Configuration configuration)
+        public WorkState(Configuration config, Context context)
         {
             _players = new HashSet<long>();
             _harvestable = new HashSet<long>();
             _mobs = new HashSet<long>();
-            config = configuration;
+
+            this.config = config;
+            this.context = context;
         }
 
         public override int OnLoop(IScriptEngine se)
@@ -29,70 +30,76 @@ namespace S1mpleESP
             if (Players.LocalPlayer == null)
                 return 1000;
 
-            var currentPlayers = new HashSet<long>();
-            var currentHarvestables = new HashSet<long>();
-            var currentMobs = new HashSet<long>();
-
             var localLocation = Players.LocalPlayer.ThreadSafeLocation;
 
-            if (_harvestable.LongCount<long>() > 100)
+            if (config.ESPPlayers)
             {
-                _harvestable.Clear();
+                playersESP(localLocation);
             }
-
-            if (_mobs.LongCount<long>() > 100)
+            if (config.ESPResources)
             {
-                _harvestable.Clear();
+                ressourcesESP(localLocation);
             }
+            return 100;
+        }
 
-            if (_players.LongCount<long>() > 100)
+        private void playersESP(Vector3<float> loc)
+        {
+            var currentPlayers = new HashSet<long>();
+            var otherPlayers = Players.RemotePlayers.OrderBy(x => x.ThreadSafeLocation.SimpleDistance(loc));
+            foreach (var otherPlayer in otherPlayers)
             {
-                _harvestable.Clear();
-            }
-
-            if (true)
-            {
-                var harvestableChain = Objects
-                    .HarvestableChain
-                    .FilterDepleted()
-                    .FilterByTypeSet(SafeTypeSet.BatchConvert(config.TypeSetsToUse));
-
-                IOrderedEnumerable<IHarvestableObject> harvestables;
-
-                harvestables = harvestableChain
-                .AsList
-                .OrderBy(x => x.ThreadSafeLocation.SimpleDistance(localLocation));
-
-                var i = 0;
-                foreach (var harvestable in harvestables)
-                {
-                    if (i == 10)
-                        break;
-                    currentHarvestables.Add(harvestable.Id);
-                    i++;
-                }
-                foreach (var mob in Entities.Mobs)
-                {
-                    if (i == 10)
-                        break;
-
-                    var mobDrop = mob.HarvestableDropChain
-                        .FilterByType(config.Resources)
-                        .FilterByTypeSet(SafeTypeSet.BatchConvert(config.TypeSetsToUse))
-                        .AsList;
-
-                    if (mobDrop.Count > 0)
-                    {
-                        currentMobs.Add(mob.Id);
-                        i++;
-                    }
-                }
+                currentPlayers.Add(otherPlayer.Id);
             }
 
             _players = currentPlayers;
+            if (currentPlayers.Count > 50)
+                currentPlayers.Clear();
+        }
+
+        private void ressourcesESP(Vector3<float> loc)
+        {
+            var localLocation = Players.LocalPlayer.ThreadSafeLocation;
+
+            var currentHarvestables = new HashSet<long>();
+            var currentMobs = new HashSet<long>();
+
+            var harvestableChain = Objects
+                .HarvestableChain
+                .FilterDepleted()
+                .FilterByTypeSet(SafeTypeSet.BatchConvert(config.TypeSetsToUse));
+
+            IOrderedEnumerable<IHarvestableObject> harvestables;
+
+            harvestables = harvestableChain
+            .AsList
+            .OrderBy(x => x.ThreadSafeLocation.SimpleDistance(localLocation));
+
+            var i = 0;
+            foreach (var harvestable in harvestables)
+            {
+                if (i == 10)
+                    break;
+                currentHarvestables.Add(harvestable.Id);
+                i++;
+            }
+            foreach (var mob in Entities.Mobs)
+            {
+                if (i == 10)
+                    break;
+
+                var mobDrop = mob.HarvestableDropChain
+                    .FilterByTypeSet(SafeTypeSet.BatchConvert(config.TypeSetsToUse))
+                    .AsList;
+
+                if (mobDrop.Count > 0)
+                {
+                    currentMobs.Add(mob.Id);
+                    i++;
+                }
+            }
             _harvestable = currentHarvestables;
             _mobs = currentMobs;
-            return 100;
         }
 
         private void DrawDistance(Vector2<float> localPlayerPos, Vector2<float> targetPos, GraphicContext g, string tr)
@@ -103,7 +110,7 @@ namespace S1mpleESP
                            Convert.ToInt32(targetPos.Y));
 
             // Calculate distance
-            var distance = localPlayerPos.SimpleDistance(localPlayerPos);
+            var distance = localPlayerPos.SimpleDistance(targetPos);
             tr = "dist: " + Convert.ToInt16(distance / 100) + "m " + tr;
             if (distance <= 5000)
             {
@@ -139,62 +146,68 @@ namespace S1mpleESP
 
         public override void OnPaint(IScriptEngine se, GraphicContext g)
         {
+            g.SetColor(new Color(0.3f, 0.3f, 0.3f, 1.0f));
+            g.FillRect(15, 100, 200, 150);
+            g.SetColor(new Color(1.0f, 1.0f, 1.0f, 1.0f));
+            g.DrawString("S1mpleESP", 20, 100);
+            g.DrawString(string.Format("State: {0}", context.State), 20, 130);
+
+            context.State = "PL: " + _players.Count + " RES: " + _harvestable.Count;
+
             var localPlayerPos = Players.LocalPlayer.ScreenLocation;
 
-            if (_players.Count > 0)
+            if (config.ESPPlayers)
             {
-                var playerList = Players.RemotePlayerChain
-                    .Filter(new OnlyThisIds<IRemotePlayerObject>(_players.ToArray()))
-                    .AsList;
-
-                foreach (var otherPlayer in playerList)
+                if (_players.Count > 0)
                 {
-                    var screenPosition = otherPlayer.ScreenLocation;
-                    string tr = " ";
-                    if (screenPosition != null)
-                    {
-                        if (config.ESPHostile && otherPlayer.IsPvpEnabled)
-                        {
-                            if (config.ESPIgnorePG)
-                            {
-                                if (otherPlayer.IsInLocalPlayerParty == true || (otherPlayer.Guild == Players.LocalPlayer.Guild))
-                                {
+                    var playerList = Players.RemotePlayerChain
+                        .Filter(new OnlyThisIds<IRemotePlayerObject>(_players.ToArray()))
+                        .AsList;
 
-                                }
-                                else
+                    foreach (var otherPlayer in playerList)
+                    {
+                        var screenPosition = otherPlayer.ScreenLocation;
+                        string tr = " ";
+                        if (screenPosition != null)
+                        {
+                            if (config.ESPHostile && config.ESPIgnorePG)
+                            {
+                                if (otherPlayer.IsPvpEnabled && !otherPlayer.IsInLocalPlayerParty && otherPlayer.Guild != Players.LocalPlayer.Guild)
                                 {
                                     g.SetColor(Color.Red);
                                     tr = "Hostile Player!!!";
+                                    DrawDistance(localPlayerPos, screenPosition, g, tr + " - " + otherPlayer.Name);
                                 }
                             }
-                            else
+                            else if (config.ESPHostile && !config.ESPIgnorePG)
                             {
-                                g.SetColor(Color.Red);
-                                tr = "Hostile Player!!!";
-                            }
-                        }
-                        if (config.ESPFriendly && !otherPlayer.IsPvpEnabled)
-                        {
-                            if (config.ESPIgnorePG)
-                            {
-                                if (otherPlayer.IsInLocalPlayerParty == true || (otherPlayer.Guild == Players.LocalPlayer.Guild))
+                                if (otherPlayer.IsPvpEnabled)
                                 {
-
+                                    g.SetColor(Color.Red);
+                                    tr = "Hostile Player!!!";
+                                    DrawDistance(localPlayerPos, screenPosition, g, tr + " - " + otherPlayer.Name);
                                 }
-                                else
+                            }
+
+                            if (config.ESPFriendly && config.ESPIgnorePG)
+                            {
+                                if (!otherPlayer.IsPvpEnabled && !otherPlayer.IsInLocalPlayerParty && otherPlayer.Guild != Players.LocalPlayer.Guild)
                                 {
                                     g.SetColor(Color.Green);
                                     tr = "Friendly Player";
+                                    DrawDistance(localPlayerPos, screenPosition, g, tr + " - " + otherPlayer.Name);
                                 }
                             }
-                            else
+                        }
+                        else if (config.ESPFriendly && !config.ESPIgnorePG)
+                        {
+                            if (!otherPlayer.IsPvpEnabled)
                             {
                                 g.SetColor(Color.Green);
                                 tr = "Friendly Player";
+                                DrawDistance(localPlayerPos, screenPosition, g, tr + " - " + otherPlayer.Name);
                             }
                         }
-
-                        DrawDistance(localPlayerPos, screenPosition, g, tr + " - " + otherPlayer.Name);
                     }
                 }
             }

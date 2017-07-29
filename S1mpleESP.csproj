@@ -48,6 +48,7 @@
     <Compile Include="Class\SafeTypeSet.cs" />
     <Compile Include="Class\OnlyThisIds.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="State\ResolveState.cs" />
     <Compile Include="State\WorkState.cs" />
     <Compile Include="State\ConfigState.cs" />
   </ItemGroup>

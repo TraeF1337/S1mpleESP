@@ -5,13 +5,13 @@ namespace S1mpleESP
 {
     public class Configuration
     {
-        public bool ESPResources { get; set; }
-        public bool ESPFriendly { get; set; }
-        public bool ESPHostile { get; set; }
-        public bool ESPIgnorePG { get; set; }
-        public bool ESPActivatedPlayersOnlyHostile { get; set; }
-        public ResourceType[] Resources { get; set; }
+        public bool ESPResources = false;
+        public bool ESPPlayers = false;
 
+        public bool ESPFriendly = false;
+        public bool ESPHostile = false;
+        public bool ESPIgnorePG = false;
+      
         public bool ESPWood = false;
         public bool ESPOre = false;
         public bool ESPFiber = false;

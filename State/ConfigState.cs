@@ -11,10 +11,12 @@ namespace S1mpleESP
     public class ConfigState : StateScript
     {
         private IPanel primaryPanel;
+
         private ILabel tierLabel;
-        private ILabel h1Label;
-        private ILabel h2Label;
-        private ILabel h3Label;
+
+        private ICheckBox _checkESPResources;
+        private ICheckBox _checkESPPlayers;
+
         private IInputField WoodInput;
         private ICheckBox WoodCheckBox;
         private IInputField OreInput;
@@ -29,7 +31,6 @@ namespace S1mpleESP
         private ICheckBox _checkESPFriendly;
         private ICheckBox _checkESPHostile;
         private ICheckBox _checkESPIgnorePG;
-        private ICheckBox _checkESPActivatedResources;
 
 
         private IButton runButton;
@@ -78,11 +79,18 @@ namespace S1mpleESP
             if (sets[ResourceType.Wood].Count > 0)
                 WoodInput.SetText(string.Join(",", sets[ResourceType.Wood].ToArray()));
 
+            _checkESPResources.SetSelected(config.ESPResources);
+            _checkESPPlayers.SetSelected(config.ESPPlayers);
+
             WoodCheckBox.SetSelected(config.ESPWood);
             OreCheckBox.SetSelected(config.ESPOre);
             FiberCheckBox.SetSelected(config.ESPFiber);
             HideCheckBox.SetSelected(config.ESPHide);
             StoneCheckBox.SetSelected(config.ESPStone);
+
+            _checkESPFriendly.SetSelected(config.ESPFriendly);
+            _checkESPHostile.SetSelected(config.ESPHostile);
+            _checkESPIgnorePG.SetSelected(config.ESPIgnorePG);
 
             config.TypeSetsToUse.Clear();
         }
@@ -137,6 +145,18 @@ namespace S1mpleESP
 
         private void SaveConfig()
         {
+            config.ESPResources = _checkESPResources.IsSelected();
+            config.ESPPlayers = _checkESPPlayers.IsSelected();
+
+            config.ESPFriendly = _checkESPFriendly.IsSelected();
+            config.ESPHostile = _checkESPHostile.IsSelected();
+            config.ESPIgnorePG = _checkESPIgnorePG.IsSelected();
+
+            config.ESPWood = WoodCheckBox.IsSelected();
+            config.ESPOre = OreCheckBox.IsSelected();
+            config.ESPFiber = FiberCheckBox.IsSelected();
+            config.ESPHide = HideCheckBox.IsSelected();
+            config.ESPStone = StoneCheckBox.IsSelected();
             try
             {
                 if (Files.Exists("s1mpleESP.json"))
@@ -156,38 +176,37 @@ namespace S1mpleESP
             if (WoodCheckBox.IsSelected())
             {
                 AddTiers(ResourceType.Wood, WoodInput.GetText());
+                config.ESPWood = true;
             }
 
             if (OreCheckBox.IsSelected())
             {
                 AddTiers(ResourceType.Ore, OreInput.GetText());
+                config.ESPOre = true;
             }
 
             if (FiberCheckBox.IsSelected())
             {
                 AddTiers(ResourceType.Fiber, FiberInput.GetText());
+                config.ESPFiber = true;
             }
 
             if (HideCheckBox.IsSelected())
             {
                 AddTiers(ResourceType.Hide, HideInput.GetText());
+                config.ESPHide = true;
             }
 
             if (StoneCheckBox.IsSelected())
             {
                 AddTiers(ResourceType.Rock, StoneInput.GetText());
-            }
-
-            if (config.TypeSetsToUse.Count == 0)
-            {
-                context.State = "No type sets to ESP!";
-                return;
+                config.ESPStone = true;
             }
 
             SaveConfig();
 
             primaryPanel.Destroy();
-            parent.EnterState("resolve");
+            parent.EnterState("work");
         }
 
         public override bool OnStart(IScriptEngine se)
@@ -200,15 +219,22 @@ namespace S1mpleESP
 
                 primaryPanel = Factories.CreateGuiPanel();
                 GuiScene.Add(primaryPanel);
-                primaryPanel.SetSize(300, 320);
+                primaryPanel.SetSize(400, 450);
                 primaryPanel.SetPosition(155, (screenSize.Y / 2), 0);
                 primaryPanel.SetAnchor(new Vector2f(0.0f, 0.0f), new Vector2f(0.0f, 0.0f));
                 primaryPanel.SetPivot(new Vector2f(0.5f, 0.5f));
 
+                _checkESPResources = Factories.CreateGuiCheckBox();
+                primaryPanel.Add(_checkESPResources);
+                _checkESPResources.SetPosition(0, 200, 0);
+                _checkESPResources.SetSize(300, 25);
+                _checkESPResources.SetText("ESP Resources");
+                _checkESPResources.SetSelected(true);
+
                 tierLabel = Factories.CreateGuiLabel();
                 primaryPanel.Add(tierLabel);
-                tierLabel.SetPosition(-60, 175, 0);
-                tierLabel.SetSize(100, 25);
+                tierLabel.SetPosition(0, 175, 0);
+                tierLabel.SetSize(300, 25);
                 tierLabel.SetText("Tier: 2,3,4,4.1,4.2,4.3");
 
                 WoodInput = Factories.CreateGuiInputField();
@@ -220,7 +246,7 @@ namespace S1mpleESP
                 primaryPanel.Add(WoodCheckBox);
                 WoodCheckBox.SetPosition(60, 150, 0);
                 WoodCheckBox.SetSize(100, 25);
-                WoodCheckBox.SetText(" Wood");
+                WoodCheckBox.SetText("ESP Wood");
                 WoodCheckBox.SetSelected(true);
 
                 OreInput = Factories.CreateGuiInputField();
@@ -232,7 +258,7 @@ namespace S1mpleESP
                 primaryPanel.Add(OreCheckBox);
                 OreCheckBox.SetPosition(60, 120, 0);
                 OreCheckBox.SetSize(100, 25);
-                OreCheckBox.SetText(" Ore");
+                OreCheckBox.SetText("ESP Ore");
                 OreCheckBox.SetSelected(true);
 
                 FiberInput = Factories.CreateGuiInputField();
@@ -244,7 +270,7 @@ namespace S1mpleESP
                 primaryPanel.Add(FiberCheckBox);
                 FiberCheckBox.SetPosition(60, 90, 0);
                 FiberCheckBox.SetSize(100, 25);
-                FiberCheckBox.SetText(" Fiber");
+                FiberCheckBox.SetText("ESP Fiber");
                 FiberCheckBox.SetSelected(true);
 
                 HideInput = Factories.CreateGuiInputField();
@@ -256,7 +282,7 @@ namespace S1mpleESP
                 primaryPanel.Add(HideCheckBox);
                 HideCheckBox.SetPosition(60, 60, 0);
                 HideCheckBox.SetSize(100, 25);
-                HideCheckBox.SetText(" Hide");
+                HideCheckBox.SetText("ESP Hide");
                 HideCheckBox.SetSelected(true);
 
                 StoneInput = Factories.CreateGuiInputField();
@@ -268,42 +294,32 @@ namespace S1mpleESP
                 primaryPanel.Add(StoneCheckBox);
                 StoneCheckBox.SetPosition(60, 30, 0);
                 StoneCheckBox.SetSize(100, 25);
-                StoneCheckBox.SetText(" Stone");
+                StoneCheckBox.SetText("ESP Stone");
                 StoneCheckBox.SetSelected(true);
 
-                h2Label = Factories.CreateGuiLabel();
-                primaryPanel.Add(h2Label);
-                h2Label.SetPosition(60, 0, 0);
-                h2Label.SetSize(100, 25);
-                h2Label.SetText("ESP Players (combine yourself)");
+                _checkESPPlayers = Factories.CreateGuiCheckBox();
+                primaryPanel.Add(_checkESPPlayers);
+                _checkESPPlayers.SetPosition(0, 0, 0);
+                _checkESPPlayers.SetSize(300, 25);
+                _checkESPPlayers.SetText("ESP Players (combine yourself)");
 
                 _checkESPFriendly = Factories.CreateGuiCheckBox();
                 primaryPanel.Add(_checkESPFriendly);
                 _checkESPFriendly.SetPosition(-70, -30, 0);
                 _checkESPFriendly.SetSize(100, 25);
                 _checkESPFriendly.SetText("Friendly");
-                _checkESPFriendly.SetSelected(true);
 
                 _checkESPHostile = Factories.CreateGuiCheckBox();
                 primaryPanel.Add(_checkESPHostile);
                 _checkESPHostile.SetPosition(-70, -60, 0);
                 _checkESPHostile.SetSize(100, 25);
                 _checkESPHostile.SetText("Hostile");
-                _checkESPHostile.SetSelected(true);
 
                 _checkESPIgnorePG = Factories.CreateGuiCheckBox();
                 primaryPanel.Add(_checkESPIgnorePG);
                 _checkESPIgnorePG.SetPosition(70, -30, 0);
                 _checkESPIgnorePG.SetSize(-10, 25);
                 _checkESPIgnorePG.SetText("Ignore Party/Guild");
-                _checkESPIgnorePG.SetSelected(true);
-
-                _checkESPActivatedResources = Factories.CreateGuiCheckBox();
-                primaryPanel.Add(_checkESPActivatedResources);
-                _checkESPActivatedResources.SetPosition(-70, -90, 0);
-                _checkESPActivatedResources.SetSize(100, 25);
-                _checkESPActivatedResources.SetText("ESP Resources");
-                _checkESPActivatedResources.SetSelected(true);
 
                 runButton = Factories.CreateGuiButton();
                 primaryPanel.Add(runButton);
@@ -314,6 +330,8 @@ namespace S1mpleESP
                 {
                     SelectedStart();
                 });
+
+                UpdateForConfig();
             });
 
             Logging.Log("Menu loaded", LogLevel.Info);
@@ -323,7 +341,6 @@ namespace S1mpleESP
 
         public override int OnLoop(IScriptEngine se)
         {
-            var lpo = Players.LocalPlayer;
             return 100;
         }
     }
