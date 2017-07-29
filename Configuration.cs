@@ -1,8 +1,5 @@
 ﻿using Ennui.Api.Meta;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace SimpleESP
 {
@@ -10,6 +7,11 @@ namespace SimpleESP
     {        
         public bool ESPActivatedResources { get; set; }
         public bool ESPActivatedPlayers { get; set; }
+        public bool ESPActivatedPlayersOnlyHostile { get; set; }
+        public bool StoneOnlyT5 { get; set; }
+        public bool StoneOnlyT6 { get; set; }
+        public bool StoneOnlyT7 { get; set; }
+        public bool StoneOnlyT8 { get; set; }
         public ResourceType[] Resources { get; set; }   
         public List<string> TierAndRarity { get; set; }        
         public bool OnlyResourcesWithMoreThan1 { get; set; }

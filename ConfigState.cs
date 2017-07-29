@@ -10,8 +10,9 @@ namespace SimpleESP
     public class ConfigState: StateScript
     {
         private Configuration _configuration ;
-        private ICheckBox _checkESPActivatedPlayers, _checkESPActivatedResources;
+        private ICheckBox _checkESPActivatedPlayers, _checkESPActivatedPlayersOnlyHostile, _checkESPActivatedResources;
         private ICheckBox _checkResOre, _checkResFiber, _checkResTree, _checkResStone, _checkResLeather;
+        private ICheckBox _checkStoneOnlyT5, _checkStoneOnlyT6, _checkStoneOnlyT7, _checkStoneOnlyT8;
         private ICheckBox _checkT2, _checkT3,
             _checkT4, _checkT4_1, _checkT4_2, _checkT4_3,
             _checkT5, _checkT5_1, _checkT5_2, _checkT5_3,
@@ -48,20 +49,30 @@ namespace SimpleESP
                 _checkESPActivatedPlayers = Factories.CreateGuiCheckBox();
                 _panel.Add(_checkESPActivatedPlayers);
                 _checkESPActivatedPlayers.SetPosition(-200, 255, 0);
-                _checkESPActivatedPlayers.SetText("ESP Players");
+                _checkESPActivatedPlayers.SetText("ESP All Players");
                 _checkESPActivatedPlayers.SetSize(50, 25);
+                _checkESPActivatedPlayers.SetSelected(true);
+
+                _checkESPActivatedPlayersOnlyHostile = Factories.CreateGuiCheckBox();
+                _panel.Add(_checkESPActivatedPlayersOnlyHostile);
+                _checkESPActivatedPlayersOnlyHostile.SetPosition(-50, 255, 0);
+                _checkESPActivatedPlayersOnlyHostile.SetText("ESP only Hostile Players");
+                _checkESPActivatedPlayersOnlyHostile.SetSize(50, 25);
+                _checkESPActivatedPlayersOnlyHostile.SetSelected(false);
 
                 _checkESPActivatedResources = Factories.CreateGuiCheckBox();
                 _panel.Add(_checkESPActivatedResources);
                 _checkESPActivatedResources.SetPosition(-200, 235, 0);
                 _checkESPActivatedResources.SetText("ESP Resources");
                 _checkESPActivatedResources.SetSize(50, 25);
+                _checkESPActivatedResources.SetSelected(true);
 
                 _checkResOre = Factories.CreateGuiCheckBox();
                 _panel.Add(_checkResOre);
                 _checkResOre.SetPosition(-150, 215, 0);
                 _checkResOre.SetText("Ore");
                 _checkResOre.SetSize(50, 25);
+                _checkResOre.SetSelected(true);
 
                 _checkResFiber = Factories.CreateGuiCheckBox();
                 _panel.Add(_checkResFiber);
@@ -74,12 +85,14 @@ namespace SimpleESP
                 _checkResTree.SetPosition(-150, 175, 0);
                 _checkResTree.SetText("Tree");
                 _checkResTree.SetSize(50, 25);
+                _checkResTree.SetSelected(true);
 
                 _checkResStone = Factories.CreateGuiCheckBox();
                 _panel.Add(_checkResStone);
                 _checkResStone.SetPosition(-150, 155, 0);
                 _checkResStone.SetText("Stone");
                 _checkResStone.SetSize(50, 25);
+                _checkResStone.SetSelected(true);
 
                 _checkResLeather = Factories.CreateGuiCheckBox();
                 _panel.Add(_checkResLeather);
@@ -110,24 +123,35 @@ namespace SimpleESP
                 _checkT4_1.SetPosition(50, 155, 0);
                 _checkT4_1.SetText("T4.1");
                 _checkT4_1.SetSize(50, 25);
+                _checkT4_1.SetSelected(true);
 
                 _checkT4_2 = Factories.CreateGuiCheckBox();
                 _panel.Add(_checkT4_2);
                 _checkT4_2.SetPosition(50, 135, 0);
                 _checkT4_2.SetText("T4.2");
                 _checkT4_2.SetSize(50, 25);
+                _checkT4_2.SetSelected(true);
 
                 _checkT4_3 = Factories.CreateGuiCheckBox();
                 _panel.Add(_checkT4_3);
                 _checkT4_3.SetPosition(50, 115, 0);
                 _checkT4_3.SetText("T4.3");
                 _checkT4_3.SetSize(50, 25);
+                _checkT4_3.SetSelected(true);
 
                 _checkT5 = Factories.CreateGuiCheckBox();
                 _panel.Add(_checkT5);
                 _checkT5.SetPosition(30, 95, 0);
                 _checkT5.SetText("T5");
                 _checkT5.SetSize(50, 25);
+                _checkT5.SetSelected(true);
+
+                _checkStoneOnlyT5 = Factories.CreateGuiCheckBox();
+                _panel.Add(_checkStoneOnlyT5);
+                _checkStoneOnlyT5.SetPosition(130, 95, 0);
+                _checkStoneOnlyT5.SetText("Only Stone");
+                _checkStoneOnlyT5.SetSize(50, 25);
+                _checkStoneOnlyT5.SetSelected(true);
 
                 _checkT5_1 = Factories.CreateGuiCheckBox();
                 _panel.Add(_checkT5_1);
@@ -153,6 +177,12 @@ namespace SimpleESP
                 _checkT6.SetText("T6");
                 _checkT6.SetSize(50, 25);
 
+                _checkStoneOnlyT6 = Factories.CreateGuiCheckBox();
+                _panel.Add(_checkStoneOnlyT6);
+                _checkStoneOnlyT6.SetPosition(130, 15, 0);
+                _checkStoneOnlyT6.SetText("Only Stone");
+                _checkStoneOnlyT6.SetSize(50, 25);
+
                 _checkT6_1 = Factories.CreateGuiCheckBox();
                 _panel.Add(_checkT6_1);
                 _checkT6_1.SetPosition(50, -5, 0);
@@ -177,6 +207,12 @@ namespace SimpleESP
                 _checkT7.SetText("T7");
                 _checkT7.SetSize(50, 25);
 
+                _checkStoneOnlyT7 = Factories.CreateGuiCheckBox();
+                _panel.Add(_checkStoneOnlyT7);
+                _checkStoneOnlyT7.SetPosition(130, -65, 0);
+                _checkStoneOnlyT7.SetText("Only Stone");
+                _checkStoneOnlyT7.SetSize(50, 25);
+
                 _checkT7_1 = Factories.CreateGuiCheckBox();
                 _panel.Add(_checkT7_1);
                 _checkT7_1.SetPosition(50, -85, 0);
@@ -200,6 +236,12 @@ namespace SimpleESP
                 _checkT8.SetPosition(30, -145, 0);
                 _checkT8.SetText("T8");
                 _checkT8.SetSize(50, 25);
+                
+                _checkStoneOnlyT8 = Factories.CreateGuiCheckBox();
+                _panel.Add(_checkStoneOnlyT8);
+                _checkStoneOnlyT8.SetPosition(130, -145, 0);
+                _checkStoneOnlyT8.SetText("Only Stone");
+                _checkStoneOnlyT8.SetSize(50, 25);
 
                 _checkT8_1 = Factories.CreateGuiCheckBox();
                 _panel.Add(_checkT8_1);
@@ -233,7 +275,12 @@ namespace SimpleESP
                 button.AddActionListener((e) =>
                 {
                     _configuration.ESPActivatedPlayers = _checkESPActivatedPlayers.IsSelected();
+                    _configuration.ESPActivatedPlayersOnlyHostile = _checkESPActivatedPlayersOnlyHostile.IsSelected();
                     _configuration.ESPActivatedResources = _checkESPActivatedResources.IsSelected();
+                    _configuration.StoneOnlyT5 = _checkStoneOnlyT5.IsSelected();
+                    _configuration.StoneOnlyT6 = _checkStoneOnlyT6.IsSelected();
+                    _configuration.StoneOnlyT7 = _checkStoneOnlyT7.IsSelected();
+                    _configuration.StoneOnlyT8 = _checkStoneOnlyT8.IsSelected();
 
                     var list = new List<ResourceType>();
                     list.Add(ResourceType.Coins);
@@ -269,13 +316,13 @@ namespace SimpleESP
                         _configuration.TierAndRarity.Add("5.2");
                     if (_checkT5_3.IsSelected())
                         _configuration.TierAndRarity.Add("5.3");
-                    if (_checkT4.IsSelected())
+                    if (_checkT6.IsSelected())
                         _configuration.TierAndRarity.Add("6.0");
-                    if (_checkT4_1.IsSelected())
+                    if (_checkT6_1.IsSelected())
                         _configuration.TierAndRarity.Add("6.1");
-                    if (_checkT4_2.IsSelected())
+                    if (_checkT6_2.IsSelected())
                         _configuration.TierAndRarity.Add("6.2");
-                    if (_checkT4_3.IsSelected())
+                    if (_checkT6_3.IsSelected())
                         _configuration.TierAndRarity.Add("6.3");
                     if (_checkT7.IsSelected())
                         _configuration.TierAndRarity.Add("7.0");

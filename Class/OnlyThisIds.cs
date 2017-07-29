@@ -5,13 +5,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace SimpleESP.Class
+namespace SimpleESP
 {
     public class OnlyThisIds<T> : Filter<T> where T : ISimulationObject
     {
-        private long[] ids;
+        private HashSet<long> ids;
 
-        public OnlyThisIds(params long[] ids)
+        public OnlyThisIds(HashSet<long> ids)
         {
             this.ids = ids;
         }
@@ -19,9 +19,9 @@ namespace SimpleESP.Class
         public bool Ignore(T t)
         {
             var id = t.Id;
-            foreach (var cur in ids)
+            foreach (long cur in ids)
             {
-                if (id == cur)
+                if (id.Equals(cur))
                 {
                     return false;
                 }

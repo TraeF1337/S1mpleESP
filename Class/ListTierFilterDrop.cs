@@ -1,11 +1,13 @@
 ﻿using Ennui.Api.Builder;
-using Ennui.Api.Direct.Object;
+using Ennui.Api.Direct;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace SimpleESP.Class
+
+
+namespace SimpleESP
 {
     public class ListTierAndRarityFilterDrop : Filter<MobHarvestableDrop>
     {

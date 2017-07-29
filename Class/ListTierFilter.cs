@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace SimpleESP.Class
+namespace SimpleESP
 {
     public class ListTierAndRarityFilter : Filter<IHarvestableObject>
     {
