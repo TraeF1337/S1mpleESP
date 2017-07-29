@@ -42,14 +42,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class\ListTierFilterDrop.cs" />
-    <Compile Include="Class\Only1ChargeFilter.cs" />
-    <Compile Include="Class\OnlyThisIds.cs" />
-    <Compile Include="Class\ListTierFilter.cs" />
-    <Compile Include="Configuration.cs" />
-    <Compile Include="ConfigState.cs" />
-    <Compile Include="WorkState.cs" />
-    <Compile Include="ESPScript.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
