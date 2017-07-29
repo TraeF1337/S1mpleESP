@@ -41,12 +41,12 @@ namespace SimpleESP
 
             if (_mobs.LongCount<long>() > 100)
             {
-                _harvestable.Clear();
+                _mobs.Clear();
             }
 
             if (_players.LongCount<long>() > 100)
             {
-                _harvestable.Clear();
+                _players.Clear();
             }
 
             if (_configuration.ESPActivatedPlayersOnlyHostile)

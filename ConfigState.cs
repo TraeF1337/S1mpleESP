@@ -79,6 +79,7 @@ namespace SimpleESP
                 _checkResFiber.SetPosition(-150, 195, 0);
                 _checkResFiber.SetText("Fiber");
                 _checkResFiber.SetSize(50, 25);
+                _checkResFiber.SetSelected(true);
 
                 _checkResTree = Factories.CreateGuiCheckBox();
                 _panel.Add(_checkResTree);
@@ -99,18 +100,21 @@ namespace SimpleESP
                 _checkResLeather.SetPosition(-150, 135, 0);
                 _checkResLeather.SetText("Leather");
                 _checkResLeather.SetSize(50, 25);
-                                
+                _checkResLeather.SetSelected(true);
+
                 _checkT2 = Factories.CreateGuiCheckBox();
                 _panel.Add(_checkT2);
                 _checkT2.SetPosition(30, 215, 0);
                 _checkT2.SetText("T2");
                 _checkT2.SetSize(50, 25);
+                _checkT2.SetSelected(true);
 
                 _checkT3 = Factories.CreateGuiCheckBox();
                 _panel.Add(_checkT3);
                 _checkT3.SetPosition(30, 195, 0);
                 _checkT3.SetText("T3");
                 _checkT3.SetSize(50, 25);
+                _checkT3.SetSelected(true);
 
                 _checkT4 = Factories.CreateGuiCheckBox();
                 _panel.Add(_checkT4);
