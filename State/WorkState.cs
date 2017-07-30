@@ -198,14 +198,14 @@ namespace S1mpleESP
                                     DrawDistance(localPlayerPos, screenPosition, g, tr + " - " + otherPlayer.Name);
                                 }
                             }
-                        }
-                        else if (config.ESPFriendly && !config.ESPIgnorePG)
-                        {
-                            if (!otherPlayer.IsPvpEnabled)
+                            else if (config.ESPFriendly && !config.ESPIgnorePG)
                             {
-                                g.SetColor(Color.Green);
-                                tr = "Friendly Player";
-                                DrawDistance(localPlayerPos, screenPosition, g, tr + " - " + otherPlayer.Name);
+                                if (!otherPlayer.IsPvpEnabled)
+                                {
+                                    g.SetColor(Color.Green);
+                                    tr = "Friendly Player";
+                                    DrawDistance(localPlayerPos, screenPosition, g, tr + " - " + otherPlayer.Name);
+                                }
                             }
                         }
                     }
