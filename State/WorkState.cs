@@ -25,11 +25,18 @@ namespace S1mpleESP
             this.context = context;
         }
 
+        private void Reset()
+        {
+            _harvestable = null;
+            _mobs = null;
+            _players = null;
+        }
+
         public override int OnLoop(IScriptEngine se)
         {
             if (Players.LocalPlayer == null)
                 return 1000;
-
+            var i = 0;
             var localLocation = Players.LocalPlayer.ThreadSafeLocation;
 
             if (config.ESPPlayers)
@@ -39,6 +46,15 @@ namespace S1mpleESP
             if (config.ESPResources)
             {
                 ressourcesESP(localLocation);
+            }
+            if(i==10000)
+            {
+                Reset();
+                i = 0;
+            }
+            else
+            {
+                i++;
             }
             return 100;
         }
@@ -170,41 +186,47 @@ namespace S1mpleESP
                         string tr = " ";
                         if (screenPosition != null)
                         {
-                            if (config.ESPHostile && config.ESPIgnorePG)
+                            if (config.ESPHostile)
                             {
-                                if (otherPlayer.IsPvpEnabled && !otherPlayer.IsInLocalPlayerParty && otherPlayer.Guild != Players.LocalPlayer.Guild)
+                                if (config.ESPIgnorePG)
                                 {
-                                    g.SetColor(Color.Red);
-                                    tr = "Hostile Player!!!";
-                                    DrawDistance(localPlayerPos, screenPosition, g, tr + " - " + otherPlayer.Name);
+                                    if (otherPlayer.IsPvpEnabled && !otherPlayer.IsInLocalPlayerParty && otherPlayer.Guild != Players.LocalPlayer.Guild)
+                                    {
+                                        g.SetColor(Color.Red);
+                                        tr = "Hostile Player!!!";
+                                        DrawDistance(localPlayerPos, screenPosition, g, tr + " - " + otherPlayer.Name);
+                                    }
                                 }
-                            }
-                            else if (config.ESPHostile && !config.ESPIgnorePG)
-                            {
-                                if (otherPlayer.IsPvpEnabled)
+                                else if (!config.ESPIgnorePG)
                                 {
-                                    g.SetColor(Color.Red);
-                                    tr = "Hostile Player!!!";
-                                    DrawDistance(localPlayerPos, screenPosition, g, tr + " - " + otherPlayer.Name);
+                                    if (otherPlayer.IsPvpEnabled)
+                                    {
+                                        g.SetColor(Color.Red);
+                                        tr = "Hostile Player!!!";
+                                        DrawDistance(localPlayerPos, screenPosition, g, tr + " - " + otherPlayer.Name);
+                                    }
                                 }
                             }
 
-                            if (config.ESPFriendly && config.ESPIgnorePG)
+                            if (config.ESPFriendly)
                             {
-                                if (!otherPlayer.IsPvpEnabled && !otherPlayer.IsInLocalPlayerParty && otherPlayer.Guild != Players.LocalPlayer.Guild)
+                                if (config.ESPIgnorePG)
                                 {
-                                    g.SetColor(Color.Green);
-                                    tr = "Friendly Player";
-                                    DrawDistance(localPlayerPos, screenPosition, g, tr + " - " + otherPlayer.Name);
+                                    if (!otherPlayer.IsPvpEnabled && !otherPlayer.IsInLocalPlayerParty && otherPlayer.Guild != Players.LocalPlayer.Guild)
+                                    {
+                                        g.SetColor(Color.Green);
+                                        tr = "Friendly Player";
+                                        DrawDistance(localPlayerPos, screenPosition, g, tr + " - " + otherPlayer.Name);
+                                    }
                                 }
-                            }
-                            else if (config.ESPFriendly && !config.ESPIgnorePG)
-                            {
-                                if (!otherPlayer.IsPvpEnabled)
+                                else if (!config.ESPIgnorePG)
                                 {
-                                    g.SetColor(Color.Green);
-                                    tr = "Friendly Player";
-                                    DrawDistance(localPlayerPos, screenPosition, g, tr + " - " + otherPlayer.Name);
+                                    if (!otherPlayer.IsPvpEnabled)
+                                    {
+                                        g.SetColor(Color.Green);
+                                        tr = "Friendly Player";
+                                        DrawDistance(localPlayerPos, screenPosition, g, tr + " - " + otherPlayer.Name);
+                                    }
                                 }
                             }
                         }
@@ -212,73 +234,76 @@ namespace S1mpleESP
                 }
             }
 
-            if (_harvestable.Count > 0)
+            if (config.ESPResources)
             {
-                ///////////////////////////////////////////////////////////////////////////////
-                var harvestableList = Objects
-                    .HarvestableChain.Filter(new OnlyThisIds<IHarvestableObject>(_harvestable.ToArray()))
-                    .AsList;
-                ///////////////////////////////////////////////////////////////////////////
-                foreach (var harvestable in harvestableList)
+                if (_harvestable.Count > 0)
                 {
-                    var screenPosition = harvestable.ScreenLocation;
-                    string text = harvestable.Type + " T-" + harvestable.Tier.ToString() + "." + harvestable.RareState.ToString();
-                    if (screenPosition != null)
+                    ///////////////////////////////////////////////////////////////////////////////
+                    var harvestableList = Objects
+                        .HarvestableChain.Filter(new OnlyThisIds<IHarvestableObject>(_harvestable.ToArray()))
+                        .AsList;
+                    ///////////////////////////////////////////////////////////////////////////
+                    foreach (var harvestable in harvestableList)
                     {
-                        switch (harvestable.Type)
+                        var screenPosition = harvestable.ScreenLocation;
+                        string text = harvestable.Type + " T-" + harvestable.Tier.ToString() + "." + harvestable.RareState.ToString();
+                        if (screenPosition != null)
                         {
-                            case Ennui.Api.Meta.ResourceType.Fiber:
-                                g.SetColor(Color.Black);
-                                break;
-                            case Ennui.Api.Meta.ResourceType.Ore:
-                                g.SetColor(Color.Yellow);
-                                break;
-                            case Ennui.Api.Meta.ResourceType.Hide:
-                                g.SetColor(Color.Blue);
-                                break;
-                            case Ennui.Api.Meta.ResourceType.Wood:
-                                g.SetColor(Color.Orange);
-                                break;
-                            case Ennui.Api.Meta.ResourceType.Rock:
-                                g.SetColor(Color.Cyan);
-                                break;
-                            case Ennui.Api.Meta.ResourceType.Coins:
-                                g.SetColor(Color.White);
-                                break;
-                            default:
-                                g.SetColor(Color.Blue);
-                                break;
-                        }
-                        switch (harvestable.RareState)
-                        {
-                            case 1:
-                                g.SetColor(Color.Green);
-                                break;
-                            case 2:
-                                g.SetColor(Color.SkyBlue);
-                                break;
-                            case 3:
-                                g.SetColor(Color.Purple);
-                                break;
-                        }
+                            switch (harvestable.Type)
+                            {
+                                case Ennui.Api.Meta.ResourceType.Fiber:
+                                    g.SetColor(Color.Black);
+                                    break;
+                                case Ennui.Api.Meta.ResourceType.Ore:
+                                    g.SetColor(Color.Yellow);
+                                    break;
+                                case Ennui.Api.Meta.ResourceType.Hide:
+                                    g.SetColor(Color.Blue);
+                                    break;
+                                case Ennui.Api.Meta.ResourceType.Wood:
+                                    g.SetColor(Color.Orange);
+                                    break;
+                                case Ennui.Api.Meta.ResourceType.Rock:
+                                    g.SetColor(Color.Cyan);
+                                    break;
+                                case Ennui.Api.Meta.ResourceType.Coins:
+                                    g.SetColor(Color.White);
+                                    break;
+                                default:
+                                    g.SetColor(Color.Blue);
+                                    break;
+                            }
+                            switch (harvestable.RareState)
+                            {
+                                case 1:
+                                    g.SetColor(Color.Green);
+                                    break;
+                                case 2:
+                                    g.SetColor(Color.SkyBlue);
+                                    break;
+                                case 3:
+                                    g.SetColor(Color.Purple);
+                                    break;
+                            }
 
-                        DrawDistance(localPlayerPos, screenPosition, g, text);
+                            DrawDistance(localPlayerPos, screenPosition, g, text);
+                        }
                     }
                 }
-            }
 
-            if (_mobs.Count > 0)
-            {
-                var harvestableList = Entities.MobChain.Filter(new OnlyThisIds<IMobObject>(_mobs.ToArray())).AsList;
-
-                foreach (var harvestable in harvestableList)
+                if (_mobs.Count > 0)
                 {
-                    var screenPosition = harvestable.ScreenLocation;
-                    string text = harvestable.Name;
-                    if (screenPosition != null)
+                    var harvestableList = Entities.MobChain.Filter(new OnlyThisIds<IMobObject>(_mobs.ToArray())).AsList;
+
+                    foreach (var harvestable in harvestableList)
                     {
-                        g.SetColor(Color.SkyBlue);
-                        DrawDistance(localPlayerPos, screenPosition, g, text);
+                        var screenPosition = harvestable.ScreenLocation;
+                        string text = harvestable.Name;
+                        if (screenPosition != null)
+                        {
+                            g.SetColor(Color.SkyBlue);
+                            DrawDistance(localPlayerPos, screenPosition, g, text);
+                        }
                     }
                 }
             }
