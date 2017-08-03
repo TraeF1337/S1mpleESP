@@ -27,16 +27,20 @@ namespace S1mpleESP
 
         private void Reset()
         {
-            _harvestable = null;
-            _mobs = null;
-            _players = null;
+            if (_players.Count > 10)
+                _players.Clear();
+
+            if (_harvestable.Count > 10)
+                _harvestable.Clear();
+
+            if (_mobs.Count > 10)
+                _mobs.Clear();
         }
 
         public override int OnLoop(IScriptEngine se)
         {
             if (Players.LocalPlayer == null)
                 return 1000;
-            var i = 0;
             var localLocation = Players.LocalPlayer.ThreadSafeLocation;
 
             if (config.ESPPlayers)
@@ -47,15 +51,8 @@ namespace S1mpleESP
             {
                 ressourcesESP(localLocation);
             }
-            if(i==10)
-            {
-                Reset();
-                i = 0;
-            }
-            else
-            {
-                i++;
-            }
+            //Reset();
+
             return 100;
         }
 
@@ -69,7 +66,7 @@ namespace S1mpleESP
             }
 
             _players = currentPlayers;
-            if (currentPlayers.Count > 50)
+            if (currentPlayers.Count > 10)
                 currentPlayers.Clear();
         }
 
@@ -87,6 +84,7 @@ namespace S1mpleESP
                 .AsList;
 
             var i = 0;
+
             foreach (var harvestable in harvestableChain)
             {
                 if (i == 10)
@@ -94,9 +92,12 @@ namespace S1mpleESP
                 currentHarvestables.Add(harvestable.Id);
                 i++;
             }
+
+            var e = 0;
+
             foreach (var mob in Entities.Mobs)
             {
-                if (i == 10)
+                if (e == 10)
                     break;
 
                 var mobDrop = mob.HarvestableDropChain
@@ -106,11 +107,18 @@ namespace S1mpleESP
                 if (mobDrop.Count > 0)
                 {
                     currentMobs.Add(mob.Id);
-                    i++;
+                    e++;
                 }
+                mobDrop.Clear();
             }
+
             _harvestable = currentHarvestables;
+            if (currentHarvestables.Count > 10)
+                currentHarvestables.Clear();
+
             _mobs = currentMobs;
+            if (currentMobs.Count > 10)
+                currentMobs.Clear();
         }
 
         private void DrawDistance(Vector2<float> localPlayerPos, Vector2<float> targetPos, GraphicContext g, string tr)
@@ -257,7 +265,7 @@ namespace S1mpleESP
                             switch (harvestable.Type)
                             {
                                 case Ennui.Api.Meta.ResourceType.Fiber:
-                                    g.SetColor(Color.Black);
+                                    g.SetColor(Color.White);
                                     break;
                                 case Ennui.Api.Meta.ResourceType.Ore:
                                     g.SetColor(Color.Yellow);
