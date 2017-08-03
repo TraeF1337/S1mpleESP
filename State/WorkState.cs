@@ -47,7 +47,7 @@ namespace S1mpleESP
             {
                 ressourcesESP(localLocation);
             }
-            if(i==10000)
+            if(i==10)
             {
                 Reset();
                 i = 0;
@@ -190,7 +190,7 @@ namespace S1mpleESP
                             {
                                 if (config.ESPIgnorePG)
                                 {
-                                    if (otherPlayer.IsPvpEnabled && !otherPlayer.IsInLocalPlayerParty && otherPlayer.Guild != Players.LocalPlayer.Guild)
+                                    if (otherPlayer.IsPvpEnabled && !otherPlayer.IsInLocalPlayerParty && otherPlayer.Guild != Players.LocalPlayer.Guild && otherPlayer.GuildTag != Players.LocalPlayer.GuildTag)
                                     {
                                         g.SetColor(Color.Red);
                                         tr = "Hostile Player!!!";
@@ -212,7 +212,7 @@ namespace S1mpleESP
                             {
                                 if (config.ESPIgnorePG)
                                 {
-                                    if (!otherPlayer.IsPvpEnabled && !otherPlayer.IsInLocalPlayerParty && otherPlayer.Guild != Players.LocalPlayer.Guild)
+                                    if (!otherPlayer.IsPvpEnabled && !otherPlayer.IsInLocalPlayerParty && otherPlayer.Guild != Players.LocalPlayer.Guild && otherPlayer.GuildTag != Players.LocalPlayer.GuildTag)
                                     {
                                         g.SetColor(Color.Green);
                                         tr = "Friendly Player";
@@ -297,8 +297,12 @@ namespace S1mpleESP
 
                     foreach (var harvestable in harvestableList)
                     {
+
+                        var mobDrop = harvestable.HarvestableDropChain
+                            .FilterByTypeSet(SafeTypeSet.BatchConvert(config.TypeSetsToUse))
+                            .AsList;
                         var screenPosition = harvestable.ScreenLocation;
-                        string text = harvestable.Name;
+                        string text = mobDrop[0].Type + " Mob T:" + mobDrop[0].Tier + "." + mobDrop[0].Rarity;
                         if (screenPosition != null)
                         {
                             g.SetColor(Color.SkyBlue);
