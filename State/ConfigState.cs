@@ -28,6 +28,8 @@ namespace S1mpleESP
         private IInputField StoneInput;
         private ICheckBox StoneCheckBox;
 
+        private ICheckBox _checkESPBlack;
+
         private ICheckBox _checkESPFriendly;
         private ICheckBox _checkESPHostile;
         private ICheckBox _checkESPIgnorePG;
@@ -91,6 +93,7 @@ namespace S1mpleESP
             _checkESPFriendly.SetSelected(config.ESPFriendly);
             _checkESPHostile.SetSelected(config.ESPHostile);
             _checkESPIgnorePG.SetSelected(config.ESPIgnorePG);
+            _checkESPBlack.SetSelected(config.ESPBlack);
 
             config.TypeSetsToUse.Clear();
         }
@@ -151,6 +154,7 @@ namespace S1mpleESP
             config.ESPFriendly = _checkESPFriendly.IsSelected();
             config.ESPHostile = _checkESPHostile.IsSelected();
             config.ESPIgnorePG = _checkESPIgnorePG.IsSelected();
+            config.ESPBlack = _checkESPBlack.IsSelected();
 
             config.ESPWood = WoodCheckBox.IsSelected();
             config.ESPOre = OreCheckBox.IsSelected();
@@ -320,6 +324,12 @@ namespace S1mpleESP
                 _checkESPIgnorePG.SetPosition(70, -30, 0);
                 _checkESPIgnorePG.SetSize(-10, 25);
                 _checkESPIgnorePG.SetText("Ignore Party/Guild");
+
+                _checkESPBlack = Factories.CreateGuiCheckBox();
+                primaryPanel.Add(_checkESPBlack);
+                _checkESPBlack.SetPosition(70, -60, 0);
+                _checkESPBlack.SetSize(-10, 25);
+                _checkESPBlack.SetText("Black Zone Mode");
 
                 runButton = Factories.CreateGuiButton();
                 primaryPanel.Add(runButton);

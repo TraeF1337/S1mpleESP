@@ -83,16 +83,11 @@ namespace S1mpleESP
             var harvestableChain = Objects
                 .HarvestableChain
                 .FilterDepleted()
-                .FilterByTypeSet(SafeTypeSet.BatchConvert(config.TypeSetsToUse));
-
-            IOrderedEnumerable<IHarvestableObject> harvestables;
-
-            harvestables = harvestableChain
-            .AsList
-            .OrderBy(x => x.ThreadSafeLocation.SimpleDistance(localLocation));
+                .FilterByTypeSet(SafeTypeSet.BatchConvert(config.TypeSetsToUse))
+                .AsList;
 
             var i = 0;
-            foreach (var harvestable in harvestables)
+            foreach (var harvestable in harvestableChain)
             {
                 if (i == 10)
                     break;
@@ -167,11 +162,11 @@ namespace S1mpleESP
             g.SetColor(new Color(1.0f, 1.0f, 1.0f, 1.0f));
             g.DrawString("S1mpleESP", 20, 100);
             g.DrawString(string.Format("State: {0}", context.State), 20, 130);
+            //g.DrawString("GS: " + Game., 20, 160);
 
             context.State = "PL: " + _players.Count + " RES: " + _harvestable.Count;
 
             var localPlayerPos = Players.LocalPlayer.ScreenLocation;
-
             if (config.ESPPlayers)
             {
                 if (_players.Count > 0)
@@ -186,48 +181,58 @@ namespace S1mpleESP
                         string tr = " ";
                         if (screenPosition != null)
                         {
-                            if (config.ESPHostile)
+                            if (!config.ESPBlack)
                             {
-                                if (config.ESPIgnorePG)
+                                if (config.ESPHostile)
                                 {
-                                    if (otherPlayer.IsPvpEnabled && !otherPlayer.IsInLocalPlayerParty && otherPlayer.Guild != Players.LocalPlayer.Guild && otherPlayer.GuildTag != Players.LocalPlayer.GuildTag)
+                                    if (config.ESPIgnorePG)
                                     {
-                                        g.SetColor(Color.Red);
-                                        tr = "Hostile Player!!!";
-                                        DrawDistance(localPlayerPos, screenPosition, g, tr + " - " + otherPlayer.Name);
+                                        if (otherPlayer.IsPvpEnabled && !otherPlayer.IsInLocalPlayerParty && otherPlayer.Guild != Players.LocalPlayer.Guild && otherPlayer.GuildTag != Players.LocalPlayer.GuildTag)
+                                        {
+                                            g.SetColor(Color.Red);
+                                            tr = "Hostile Player!!!";
+                                            DrawDistance(localPlayerPos, screenPosition, g, tr + " - " + otherPlayer.Name);
+                                        }
+                                    }
+                                    else if (!config.ESPIgnorePG)
+                                    {
+                                        if (otherPlayer.IsPvpEnabled)
+                                        {
+                                            g.SetColor(Color.Red);
+                                            tr = "Hostile Player!!!";
+                                            DrawDistance(localPlayerPos, screenPosition, g, tr + " - " + otherPlayer.Name);
+                                        }
                                     }
                                 }
-                                else if (!config.ESPIgnorePG)
+
+                                if (config.ESPFriendly)
                                 {
-                                    if (otherPlayer.IsPvpEnabled)
+                                    if (config.ESPIgnorePG)
                                     {
-                                        g.SetColor(Color.Red);
-                                        tr = "Hostile Player!!!";
-                                        DrawDistance(localPlayerPos, screenPosition, g, tr + " - " + otherPlayer.Name);
+                                        if (!otherPlayer.IsPvpEnabled && !otherPlayer.IsInLocalPlayerParty && otherPlayer.Guild != Players.LocalPlayer.Guild && otherPlayer.GuildTag != Players.LocalPlayer.GuildTag)
+                                        {
+                                            g.SetColor(Color.Green);
+                                            tr = "Friendly Player";
+                                            DrawDistance(localPlayerPos, screenPosition, g, tr + " - " + otherPlayer.Name);
+                                        }
+                                    }
+                                    else if (!config.ESPIgnorePG)
+                                    {
+                                        if (!otherPlayer.IsPvpEnabled)
+                                        {
+                                            g.SetColor(Color.Green);
+                                            tr = "Friendly Player";
+                                            DrawDistance(localPlayerPos, screenPosition, g, tr + " - " + otherPlayer.Name);
+                                        }
                                     }
                                 }
                             }
 
-                            if (config.ESPFriendly)
+                            else if (!otherPlayer.IsInLocalPlayerParty && otherPlayer.Guild != Players.LocalPlayer.Guild && otherPlayer.GuildTag != Players.LocalPlayer.GuildTag)
                             {
-                                if (config.ESPIgnorePG)
-                                {
-                                    if (!otherPlayer.IsPvpEnabled && !otherPlayer.IsInLocalPlayerParty && otherPlayer.Guild != Players.LocalPlayer.Guild && otherPlayer.GuildTag != Players.LocalPlayer.GuildTag)
-                                    {
-                                        g.SetColor(Color.Green);
-                                        tr = "Friendly Player";
-                                        DrawDistance(localPlayerPos, screenPosition, g, tr + " - " + otherPlayer.Name);
-                                    }
-                                }
-                                else if (!config.ESPIgnorePG)
-                                {
-                                    if (!otherPlayer.IsPvpEnabled)
-                                    {
-                                        g.SetColor(Color.Green);
-                                        tr = "Friendly Player";
-                                        DrawDistance(localPlayerPos, screenPosition, g, tr + " - " + otherPlayer.Name);
-                                    }
-                                }
+                                g.SetColor(Color.Red);
+                                tr = "Hostile Player!!!";
+                                DrawDistance(localPlayerPos, screenPosition, g, tr + " - " + otherPlayer.Name + " [" + otherPlayer.GuildTag + "] " + otherPlayer.Guild);
                             }
                         }
                     }
@@ -238,15 +243,15 @@ namespace S1mpleESP
             {
                 if (_harvestable.Count > 0)
                 {
-                    ///////////////////////////////////////////////////////////////////////////////
+                    //////////////////////////////////////////////////////////////////////////////
                     var harvestableList = Objects
                         .HarvestableChain.Filter(new OnlyThisIds<IHarvestableObject>(_harvestable.ToArray()))
                         .AsList;
-                    ///////////////////////////////////////////////////////////////////////////
+                    //////////////////////////////////////////////////////////////////////////
                     foreach (var harvestable in harvestableList)
                     {
                         var screenPosition = harvestable.ScreenLocation;
-                        string text = harvestable.Type + " T-" + harvestable.Tier.ToString() + "." + harvestable.RareState.ToString();
+                        string text = harvestable.Type + " T-" + harvestable.Tier + "." + harvestable.RareState;
                         if (screenPosition != null)
                         {
                             switch (harvestable.Type)
@@ -285,7 +290,7 @@ namespace S1mpleESP
                                     g.SetColor(Color.Purple);
                                     break;
                             }
-
+                            
                             DrawDistance(localPlayerPos, screenPosition, g, text);
                         }
                     }
@@ -302,7 +307,7 @@ namespace S1mpleESP
                             .FilterByTypeSet(SafeTypeSet.BatchConvert(config.TypeSetsToUse))
                             .AsList;
                         var screenPosition = harvestable.ScreenLocation;
-                        string text = mobDrop[0].Type + " Mob T:" + mobDrop[0].Tier + "." + mobDrop[0].Rarity;
+                        string text = mobDrop[0].Type + " Mob T-" + mobDrop[0].Tier + "." + mobDrop[0].Rarity;
                         if (screenPosition != null)
                         {
                             g.SetColor(Color.SkyBlue);

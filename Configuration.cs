@@ -11,7 +11,8 @@ namespace S1mpleESP
         public bool ESPFriendly = false;
         public bool ESPHostile = false;
         public bool ESPIgnorePG = false;
-      
+        public bool ESPBlack = false;
+
         public bool ESPWood = false;
         public bool ESPOre = false;
         public bool ESPFiber = false;
