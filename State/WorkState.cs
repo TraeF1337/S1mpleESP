@@ -79,9 +79,9 @@ namespace S1mpleESP
 
             var harvestableChain = Objects
                 .HarvestableChain
-                .FilterDepleted()
                 .FilterByTypeSet(SafeTypeSet.BatchConvert(config.TypeSetsToUse))
-                .AsList;
+                .AsList
+                .OrderBy(x => x.ThreadSafeLocation.SimpleDistance(loc));
 
             var i = 0;
 
