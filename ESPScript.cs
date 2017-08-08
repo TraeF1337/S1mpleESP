@@ -48,6 +48,7 @@ namespace S1mpleESP
             AddState("config", new ConfigState(config, context));
             AddState("resolve", new ResolveState(config, context));
             AddState("work", new WorkState(config, context));
+            AddState("noob", new NoobState(config, context));
             EnterState("config");
             return base.OnStart(se);
         }

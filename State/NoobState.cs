@@ -7,15 +7,18 @@ using System.Collections.Generic;
 
 namespace S1mpleESP
 {
-    public class WorkState : StateScript
+    public class NoobState : StateScript
     {
         private Configuration config;
         private Context context;
         private HashSet<long> _players;
         private HashSet<long> _harvestable;
         private HashSet<long> _mobs;
+        private string db1;
+        private string db2;
+        private string db3;
 
-        public WorkState(Configuration config, Context context)
+        public NoobState(Configuration config, Context context)
         {
             _players = new HashSet<long>();
             _harvestable = new HashSet<long>();
@@ -23,18 +26,6 @@ namespace S1mpleESP
 
             this.config = config;
             this.context = context;
-        }
-
-        private void Reset()
-        {
-            if (_players.Count > 10)
-                _players.Clear();
-
-            if (_harvestable.Count > 10)
-                _harvestable.Clear();
-
-            if (_mobs.Count > 10)
-                _mobs.Clear();
         }
 
         public override int OnLoop(IScriptEngine se)
@@ -51,7 +42,6 @@ namespace S1mpleESP
             {
                 ressourcesESP(localLocation);
             }
-            //Reset();
 
             return 100;
         }
@@ -66,8 +56,6 @@ namespace S1mpleESP
             }
 
             _players = currentPlayers;
-            if (currentPlayers.Count > 10)
-                currentPlayers.Clear();
         }
 
         private void ressourcesESP(Vector3<float> loc)
@@ -87,52 +75,30 @@ namespace S1mpleESP
 
             foreach (var harvestable in harvestableChain)
             {
-                if (harvestable.IsValid && harvestable.Charges > 0)
-                {
-                    var distance = localLocation.SimpleDistance(harvestable.ScreenLocation);
+                if (i == 10)
+                    break;
 
-                    if (i == 10)
-                        break;
-
-                    if (distance < 5000)
-                        currentHarvestables.Add(harvestable.Id);
-                }
+                currentHarvestables.Add(harvestable.Id);
                 i++;
             }
 
-            var e = 0;
-
             foreach (var mob in Entities.Mobs)
             {
-                if (mob.IsValid && mob.CurrentHealth > (mob.MaxHealth / 2))
-                {
-                    if (e == 10)
-                        break;
-                    var distance = localLocation.SimpleDistance(mob.ScreenLocation);
+                if (i == 10)
+                    break;
 
-                    var mobDrop = mob.HarvestableDropChain
-                        .FilterByTypeSet(SafeTypeSet.BatchConvert(config.TypeSetsToUse))
-                        .AsList;
+                var mobDrop = mob.HarvestableDropChain
+                    .FilterByTypeSet(SafeTypeSet.BatchConvert(config.TypeSetsToUse))
+                    .AsList;
 
-                    if (mobDrop.Count > 0 && distance < 5000)
-                    {
-                        currentMobs.Add(mob.Id);
-                        e++;
-                    }
+                currentMobs.Add(mob.Id);
+                i++;
 
-                    mobDrop.Clear();
-                }
             }
 
             _harvestable = currentHarvestables;
-            if (currentHarvestables.Count > 10)
-                currentHarvestables.Clear();
-
             _mobs = currentMobs;
-            if (currentMobs.Count > 10)
-                currentMobs.Clear();
         }
-
         private void DrawDistance(Vector2<float> localPlayerPos, Vector2<float> targetPos, GraphicContext g, string tr)
         {
             g.DrawLine(Convert.ToInt32(localPlayerPos.X),
@@ -174,18 +140,17 @@ namespace S1mpleESP
                 }
             }
         }
-
         public override void OnPaint(IScriptEngine se, GraphicContext g)
         {
-            if (config.ESPDebug)
-            {
-                g.SetColor(new Color(0.3f, 0.3f, 0.3f, 1.0f));
-                g.FillRect(15, 100, 200, 150);
-                g.SetColor(new Color(1.0f, 1.0f, 1.0f, 1.0f));
-                g.DrawString("S1mpleESP", 20, 100);
-                g.DrawString(string.Format("State: {0}", context.State), 20, 130);
-                //g.DrawString("GS: " + Game., 20, 160);
-            }
+            g.SetColor(new Color(0.3f, 0.3f, 0.3f, 1.0f));
+            g.FillRect(15, 100, 200, 150);
+            g.SetColor(new Color(1.0f, 1.0f, 1.0f, 1.0f));
+            g.DrawString("S1mpleESP", 20, 100);
+            g.DrawString(string.Format("State: {0}", context.State), 20, 130);
+            g.DrawString(string.Format("DB1: {0}", db1), 20, 160);
+            g.DrawString(string.Format("DB2: {0}", db2), 20, 190);
+            g.DrawString(string.Format("DB3: {0}", db3), 20, 220);
+
             context.State = "PL: " + _players.Count + " RES: " + _harvestable.Count;
 
             var localPlayerPos = Players.LocalPlayer.ScreenLocation;
@@ -275,7 +240,7 @@ namespace S1mpleESP
                         if (harvestable.IsValid && harvestable.Charges > 0)
                         {
                             var screenPosition = harvestable.ScreenLocation;
-                            string text = harvestable.Type + " T-" + harvestable.Tier + "." + harvestable.RareState;
+                            string text = harvestable.Type + " T-" + harvestable.Tier + "." + harvestable.RareState + " " + harvestableList.Count;
                             if (screenPosition != null)
                             {
                                 switch (harvestable.Type)
@@ -331,16 +296,16 @@ namespace S1mpleESP
                             .FilterByTypeSet(SafeTypeSet.BatchConvert(config.TypeSetsToUse))
                             .AsList;
                         var screenPosition = harvestable.ScreenLocation;
-                        string text = mobDrop[0].Type + " Mob T-" + mobDrop[0].Tier + "." + mobDrop[0].Rarity;
+                        string text = mobDrop[0].Type + " Mob T-" + mobDrop[0].Tier + "." + mobDrop[0].Rarity + " " + mobDrop.Count;
                         if (screenPosition != null)
                         {
                             g.SetColor(Color.SkyBlue);
-                            if(harvestable.IsValid && harvestable.CurrentHealth > 0)
+                            if (harvestable.IsValid && harvestable.CurrentHealth > 0)
                                 DrawDistance(localPlayerPos, screenPosition, g, text);
                         }
                     }
                 }
             }
         }
-    }
+    }// End of class
 }

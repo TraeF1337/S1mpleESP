@@ -19,6 +19,8 @@ namespace S1mpleESP
         public bool ESPHide = false;
         public bool ESPStone = false;
 
+        public bool ESPDebug = false;
+
         public List<SafeTypeSet> TypeSetsToUse = new List<SafeTypeSet>();
 
     }

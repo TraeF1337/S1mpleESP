@@ -34,6 +34,8 @@ namespace S1mpleESP
         private ICheckBox _checkESPHostile;
         private ICheckBox _checkESPIgnorePG;
 
+        private ICheckBox _checkESPDebug;
+
 
         private IButton runButton;
 
@@ -94,6 +96,7 @@ namespace S1mpleESP
             _checkESPHostile.SetSelected(config.ESPHostile);
             _checkESPIgnorePG.SetSelected(config.ESPIgnorePG);
             _checkESPBlack.SetSelected(config.ESPBlack);
+            _checkESPDebug.SetSelected(config.ESPDebug);
 
             config.TypeSetsToUse.Clear();
         }
@@ -161,6 +164,8 @@ namespace S1mpleESP
             config.ESPFiber = FiberCheckBox.IsSelected();
             config.ESPHide = HideCheckBox.IsSelected();
             config.ESPStone = StoneCheckBox.IsSelected();
+
+            config.ESPDebug = _checkESPDebug.IsSelected();
             try
             {
                 if (Files.Exists("s1mpleESP.json"))
@@ -330,6 +335,12 @@ namespace S1mpleESP
                 _checkESPBlack.SetPosition(70, -60, 0);
                 _checkESPBlack.SetSize(-10, 25);
                 _checkESPBlack.SetText("Black Zone Mode");
+                
+                _checkESPDebug = Factories.CreateGuiCheckBox();
+                primaryPanel.Add(_checkESPDebug);
+                _checkESPDebug.SetPosition(0, -90, 0);
+                _checkESPDebug.SetSize(100, 25);
+                _checkESPDebug.SetText("Debug");
 
                 runButton = Factories.CreateGuiButton();
                 primaryPanel.Add(runButton);
